@@ -2,6 +2,9 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
+	"math"
+	"time"
 
 	"jojihouse-entrance-system/internal/model"
 )
@@ -136,5 +139,22 @@ func (r *UserRepository) IncreaseTotalEntries(id int) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+// 滞在時間を増やす
+func (r *UserRepository) IncreaseTotalStayTime(userID int, stayTime time.Duration) error {
+	// 滞在時間(分)の計算して切り上げ
+	stayMinutes := int(math.Ceil(stayTime.Minutes()))
+
+	// SQLのINTERVALに変換
+	interval := fmt.Sprintf("%d minutes", stayMinutes)
+
+	_, err := r.db.Exec("UPDATE users SET total_stay_time = total_stay_time + $1 WHERE id = $2", interval, userID)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
