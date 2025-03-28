@@ -6,7 +6,8 @@ CREATE TABLE users (
     contact VARCHAR(255),
     remaining_entries INT DEFAULT 0 CHECK (remaining_entries >= 0),
     registered_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    total_entries INT DEFAULT 0 CHECK (total_entries >= 0)
+    total_entries INT DEFAULT 0 CHECK (total_entries >= 0),
+    total_stay_time INTERVAL DEFAULT '0 minute'
 );
 
 CREATE TABLE roles (
