@@ -43,7 +43,7 @@
 |role_id|ロールID|
 |(user_id, role_id)|Primary Key|
 
-### 今居るユーザー(current_users)
+### 在室ユーザー(current_users)
 
 | フィールド名 | 説明 |
 |-------------|------|
