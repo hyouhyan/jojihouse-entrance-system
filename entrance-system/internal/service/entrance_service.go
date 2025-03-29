@@ -12,10 +12,23 @@ type EntranceService struct {
 	roleRepository                *repository.RoleRepository
 	accessLogRepository           *repository.AccessLogRepository
 	remainingEntriesLogRepository *repository.RemainingEntriesLogRepository
+	currentUsersRepository        *repository.CurrentUsersRepository
 }
 
-func NewEntranceService(userRepository *repository.UserRepository, roleRepository *repository.RoleRepository, accessLogRepository *repository.AccessLogRepository, remainingEntriesLogRepository *repository.RemainingEntriesLogRepository) *EntranceService {
-	return &EntranceService{userRepository: userRepository, roleRepository: roleRepository, accessLogRepository: accessLogRepository, remainingEntriesLogRepository: remainingEntriesLogRepository}
+func NewEntranceService(
+	userRepository *repository.UserRepository,
+	roleRepository *repository.RoleRepository,
+	accessLogRepository *repository.AccessLogRepository,
+	remainingEntriesLogRepository *repository.RemainingEntriesLogRepository,
+	currentUsersRepository *repository.CurrentUsersRepository,
+) *EntranceService {
+	return &EntranceService{
+		userRepository:                userRepository,
+		roleRepository:                roleRepository,
+		accessLogRepository:           accessLogRepository,
+		remainingEntriesLogRepository: remainingEntriesLogRepository,
+		currentUsersRepository:        currentUsersRepository,
+	}
 }
 
 // 入場したときの処理
@@ -28,6 +41,12 @@ func (s *EntranceService) EnterUser(barcode string) error {
 
 	// 入場ログ作成
 	err = s.accessLogRepository.CreateEntryAccessLog(user.ID)
+	if err != nil {
+		return err
+	}
+
+	// 在室ユーザーに追加
+	err = s.currentUsersRepository.AddUserToCurrentUsers(user.ID)
 	if err != nil {
 		return err
 	}
@@ -86,6 +105,12 @@ func (s *EntranceService) ExitUser(barcode string) error {
 
 	// 退場ログ作成
 	err = s.accessLogRepository.CreateExitAccessLog(user.ID)
+	if err != nil {
+		return err
+	}
+
+	// 在室ユーザーから削除
+	err = s.currentUsersRepository.DeleteUserToCurrentUsers(user.ID)
 	if err != nil {
 		return err
 	}
