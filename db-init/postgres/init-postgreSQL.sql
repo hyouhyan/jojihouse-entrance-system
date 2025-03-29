@@ -1,3 +1,4 @@
+-- ユーザー
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -10,6 +11,7 @@ CREATE TABLE users (
     total_stay_time INTERVAL DEFAULT '0 minute'
 );
 
+-- ロール
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL
@@ -24,8 +26,15 @@ VALUES
     ('house-admin'),
     ('guest');
 
+-- ロールとユーザーの中間テーブル
 CREATE TABLE user_roles (
     user_id INT REFERENCES users(id),
     role_id INT REFERENCES roles(id),
     PRIMARY KEY (user_id, role_id)
+);
+
+-- 今居るユーザーの一覧
+CREATE TABLE current_users (
+    user_id INT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    entered_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

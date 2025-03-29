@@ -43,6 +43,14 @@
 |role_id|ロールID|
 |(user_id, role_id)|Primary Key|
 
+### 今居るユーザー(current_users)
+
+| フィールド名 | 説明 |
+|-------------|------|
+|user_id|ユーザーID|
+|entered_at|入場時間|
+
+
 ## MongoDB
 
 ### 入退室ログ(access_log)
