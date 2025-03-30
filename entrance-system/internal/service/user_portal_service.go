@@ -12,10 +12,21 @@ type UserPortalService struct {
 	roleRepository                *repository.RoleRepository
 	accessLogRepository           *repository.AccessLogRepository
 	remainingEntriesLogRepository *repository.RemainingEntriesLogRepository
+	currentUsersRepository        *repository.CurrentUsersRepository
 }
 
-func NewUserPortalService(userRepository *repository.UserRepository, roleRepository *repository.RoleRepository, accessLogRepository *repository.AccessLogRepository, remainingEntriesLogRepository *repository.RemainingEntriesLogRepository) *UserPortalService {
-	return &UserPortalService{userRepository: userRepository, roleRepository: roleRepository, accessLogRepository: accessLogRepository, remainingEntriesLogRepository: remainingEntriesLogRepository}
+func NewUserPortalService(userRepository *repository.UserRepository,
+	roleRepository *repository.RoleRepository,
+	accessLogRepository *repository.AccessLogRepository,
+	remainingEntriesLogRepository *repository.RemainingEntriesLogRepository,
+	currentUsersRepository *repository.CurrentUsersRepository,
+) *UserPortalService {
+	return &UserPortalService{userRepository: userRepository,
+		roleRepository:                roleRepository,
+		accessLogRepository:           accessLogRepository,
+		remainingEntriesLogRepository: remainingEntriesLogRepository,
+		currentUsersRepository:        currentUsersRepository,
+	}
 }
 
 // ログの取得
@@ -67,4 +78,9 @@ func (s *UserPortalService) IsSystemAdmin(userID int) (bool, error) {
 
 func (s *UserPortalService) IsGuest(userID int) (bool, error) {
 	return s.roleRepository.IsGuest(userID)
+}
+
+// 在室ユーザー一覧を取得
+func (s *UserPortalService) GetCurrentUsers() ([]model.CurrentUser, error) {
+	return s.currentUsersRepository.GetCurrentUsers()
 }
