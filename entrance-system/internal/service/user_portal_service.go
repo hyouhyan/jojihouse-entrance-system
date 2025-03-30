@@ -3,6 +3,7 @@ package service
 import (
 	"jojihouse-entrance-system/internal/model"
 	"jojihouse-entrance-system/internal/repository"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -83,4 +84,9 @@ func (s *UserPortalService) IsGuest(userID int) (bool, error) {
 // 在室ユーザー一覧を取得
 func (s *UserPortalService) GetCurrentUsers() ([]model.CurrentUser, error) {
 	return s.currentUsersRepository.GetCurrentUsers()
+}
+
+// 入室時間を取得
+func (s *UserPortalService) GetEnteredTime(userID int) (time.Time, error) {
+	return s.currentUsersRepository.GetEnteredTime(userID)
 }
