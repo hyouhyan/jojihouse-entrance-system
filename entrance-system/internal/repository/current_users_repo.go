@@ -38,7 +38,7 @@ func (r *CurrentUsersRepository) DeleteUserToCurrentUsers(userID int) error {
 }
 
 // 在室ユーザー一覧を取得
-func (r *UserRepository) GetCurrentUsers() ([]model.CurrentUser, error) {
+func (r *CurrentUsersRepository) GetCurrentUsers() ([]model.CurrentUser, error) {
 	var users []model.CurrentUser
 
 	query := `
@@ -69,7 +69,7 @@ func (r *UserRepository) GetCurrentUsers() ([]model.CurrentUser, error) {
 }
 
 // 在室中のユーザーの入室時間を取得
-func (r *UserRepository) GetEnteredTime(userID int) (time.Time, error) {
+func (r *CurrentUsersRepository) GetEnteredTime(userID int) (time.Time, error) {
 	var enteredAt time.Time
 
 	query := `
