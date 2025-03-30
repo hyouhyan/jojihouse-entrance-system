@@ -2,7 +2,8 @@ package model
 
 import "time"
 
-type CurrentUsers struct {
+type CurrentUser struct {
 	UserID    int
+	Name      string
 	EnteredAt time.Time
 }
