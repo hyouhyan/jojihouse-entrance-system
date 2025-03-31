@@ -61,46 +61,38 @@ func (r *AccessLogRepository) GetAccessLogsByUserID(userID int, lastID primitive
 	return r._findAccessLogs(filter, lastID, limit)
 }
 
-func (r *AccessLogRepository) GetAccessLogsByAnyFilter(lastID primitive.ObjectID, options ...model.AccessLogFilter) ([]model.AccessLog, error) {
+func (r *AccessLogRepository) GetAccessLogsByAnyFilter(lastID primitive.ObjectID, options model.AccessLogFilter) ([]model.AccessLog, error) {
 	filter := bson.D{}
 
-	// LogFilter の可変引数を処理
-	if len(options) > 0 {
-		opt := options[0]
-
-		// UserID のフィルタ
-		if opt.UserID > 0 {
-			filter = append(filter, bson.E{Key: "user_id", Value: opt.UserID})
-		}
-
-		// 日時フィルタ
-		timeFilter := bson.D{}
-		if !opt.DayAfter.IsZero() {
-			timeFilter = append(timeFilter, bson.E{Key: "$gte", Value: opt.DayAfter})
-		}
-		if !opt.DayBefore.IsZero() {
-			timeFilter = append(timeFilter, bson.E{Key: "$lte", Value: opt.DayBefore})
-		}
-		if len(timeFilter) > 0 {
-			filter = append(filter, bson.E{Key: "time", Value: timeFilter})
-		}
-
-		// AccessType のフィルタ
-		if opt.AccessType != "" {
-			filter = append(filter, bson.E{Key: "access_type", Value: opt.AccessType})
-		}
-
-		// リミットの設定（デフォルト50）
-		limit := int64(50)
-		if opt.Limit > 0 {
-			limit = int64(opt.Limit)
-		}
-
-		return r._findAccessLogs(filter, lastID, limit)
+	// UserID のフィルタ
+	if options.UserID > 0 {
+		filter = append(filter, bson.E{Key: "user_id", Value: options.UserID})
 	}
 
-	// デフォルトの検索（オプションなしの場合）
-	return r._findAccessLogs(filter, lastID, 50)
+	// 日時フィルタ
+	timeFilter := bson.D{}
+	if !options.DayAfter.IsZero() {
+		timeFilter = append(timeFilter, bson.E{Key: "$gte", Value: options.DayAfter})
+	}
+	if !options.DayBefore.IsZero() {
+		timeFilter = append(timeFilter, bson.E{Key: "$lte", Value: options.DayBefore})
+	}
+	if len(timeFilter) > 0 {
+		filter = append(filter, bson.E{Key: "time", Value: timeFilter})
+	}
+
+	// AccessType のフィルタ
+	if options.AccessType != "" {
+		filter = append(filter, bson.E{Key: "access_type", Value: options.AccessType})
+	}
+
+	// リミットの設定（デフォルト50）
+	limit := int64(50)
+	if options.Limit > 0 {
+		limit = int64(options.Limit)
+	}
+
+	return r._findAccessLogs(filter, lastID, limit)
 }
 
 // 共通の検索処理
