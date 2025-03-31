@@ -12,14 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type LogFilter struct {
-	UserID     int
-	DayBefore  time.Time
-	DayAfter   time.Time
-	AccessType string
-	Limit      int
-}
-
 type AccessLogRepository struct {
 	db *mongo.Database
 }
@@ -69,7 +61,7 @@ func (r *AccessLogRepository) GetAccessLogsByUserID(userID int, lastID primitive
 	return r._findAccessLogs(filter, lastID, limit)
 }
 
-func (r *AccessLogRepository) GetAccessLogsByAnyFilter(lastID primitive.ObjectID, options ...LogFilter) ([]model.AccessLog, error) {
+func (r *AccessLogRepository) GetAccessLogsByAnyFilter(lastID primitive.ObjectID, options ...model.LogFilter) ([]model.AccessLog, error) {
 	filter := bson.D{}
 
 	// LogFilter の可変引数を処理
@@ -110,7 +102,6 @@ func (r *AccessLogRepository) GetAccessLogsByAnyFilter(lastID primitive.ObjectID
 	// デフォルトの検索（オプションなしの場合）
 	return r._findAccessLogs(filter, lastID, 50)
 }
-
 
 // 共通の検索処理
 func (r *AccessLogRepository) _findAccessLogs(filter bson.D, lastID primitive.ObjectID, limit int64) ([]model.AccessLog, error) {
