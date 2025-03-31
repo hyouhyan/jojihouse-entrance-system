@@ -12,6 +12,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+type LogFilter struct {
+	UserID     int
+	DayBefore  time.Time
+	DayAfter   time.Time
+	AccessType string
+	Limit      int
+}
+
 type AccessLogRepository struct {
 	db *mongo.Database
 }
@@ -60,6 +68,49 @@ func (r *AccessLogRepository) GetAccessLogsByUserID(userID int, lastID primitive
 	filter := bson.D{{Key: "user_id", Value: userID}}
 	return r._findAccessLogs(filter, lastID, limit)
 }
+
+func (r *AccessLogRepository) GetAccessLogsByAnyFilter(lastID primitive.ObjectID, options ...LogFilter) ([]model.AccessLog, error) {
+	filter := bson.D{}
+
+	// LogFilter の可変引数を処理
+	if len(options) > 0 {
+		opt := options[0]
+
+		// UserID のフィルタ
+		if opt.UserID > 0 {
+			filter = append(filter, bson.E{Key: "user_id", Value: opt.UserID})
+		}
+
+		// 日時フィルタ
+		timeFilter := bson.D{}
+		if !opt.DayAfter.IsZero() {
+			timeFilter = append(timeFilter, bson.E{Key: "$gte", Value: opt.DayAfter})
+		}
+		if !opt.DayBefore.IsZero() {
+			timeFilter = append(timeFilter, bson.E{Key: "$lte", Value: opt.DayBefore})
+		}
+		if len(timeFilter) > 0 {
+			filter = append(filter, bson.E{Key: "time", Value: timeFilter})
+		}
+
+		// AccessType のフィルタ
+		if opt.AccessType != "" {
+			filter = append(filter, bson.E{Key: "access_type", Value: opt.AccessType})
+		}
+
+		// リミットの設定（デフォルト50）
+		limit := int64(50)
+		if opt.Limit > 0 {
+			limit = int64(opt.Limit)
+		}
+
+		return r._findAccessLogs(filter, lastID, limit)
+	}
+
+	// デフォルトの検索（オプションなしの場合）
+	return r._findAccessLogs(filter, lastID, 50)
+}
+
 
 // 共通の検索処理
 func (r *AccessLogRepository) _findAccessLogs(filter bson.D, lastID primitive.ObjectID, limit int64) ([]model.AccessLog, error) {
