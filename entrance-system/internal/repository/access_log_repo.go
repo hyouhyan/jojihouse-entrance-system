@@ -50,17 +50,6 @@ func (r *AccessLogRepository) CreateExitAccessLog(userid int) error {
 	return r.CreateAccessLog(log)
 }
 
-func (r *AccessLogRepository) GetAccessLogs(lastID primitive.ObjectID, limit int64) ([]model.AccessLog, error) {
-	// フィルターなしで全ログを取得
-	return r._findAccessLogs(bson.D{}, lastID, limit)
-}
-
-func (r *AccessLogRepository) GetAccessLogsByUserID(userID int, lastID primitive.ObjectID, limit int64) ([]model.AccessLog, error) {
-	// `user_id` でフィルター
-	filter := bson.D{{Key: "user_id", Value: userID}}
-	return r._findAccessLogs(filter, lastID, limit)
-}
-
 func (r *AccessLogRepository) GetAccessLogsByAnyFilter(lastID primitive.ObjectID, options model.AccessLogFilter) ([]model.AccessLog, error) {
 	filter := bson.D{}
 

@@ -33,7 +33,10 @@ func NewUserPortalService(userRepository *repository.UserRepository,
 
 // ログの取得
 func (s *UserPortalService) GetAccessLogsByUserID(userID int, lastID primitive.ObjectID) ([]model.AccessLog, error) {
-	return s.accessLogRepository.GetAccessLogsByUserID(userID, lastID, 50)
+	options := model.AccessLogFilter{
+		UserID: userID,
+	}
+	return s.GetAccessLogsByAnyFilter(lastID, options)
 }
 
 func (s *UserPortalService) GetAccessLogsByAnyFilter(lastID primitive.ObjectID, options ...model.AccessLogFilter) ([]model.AccessLog, error) {

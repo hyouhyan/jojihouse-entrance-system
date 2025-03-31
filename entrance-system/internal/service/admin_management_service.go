@@ -60,8 +60,11 @@ func (s *AdminManagementService) RemoveRoleFromUser(userID, roleID int) error {
 	return s.roleRepository.RemoveRoleFromUser(userID, roleID)
 }
 
-func (s *AdminManagementService) GetAccessLogs(lastID primitive.ObjectID) ([]model.AccessLog, error) {
-	return s.accessLogRepository.GetAccessLogs(lastID, 50)
+func (s *AdminManagementService) GetAllAccessLogs(lastID primitive.ObjectID) ([]model.AccessLog, error) {
+	// フィルターをあえて指定しない
+	options := model.AccessLogFilter{}
+
+	return s.accessLogRepository.GetAccessLogsByAnyFilter(lastID, options)
 }
 
 func (s *AdminManagementService) GetRemainingEntriesLogs(lastID primitive.ObjectID) ([]model.RemainingEntriesLog, error) {
