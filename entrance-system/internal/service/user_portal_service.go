@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"jojihouse-entrance-system/internal/model"
 	"jojihouse-entrance-system/internal/repository"
 	"time"
@@ -33,6 +34,30 @@ func NewUserPortalService(userRepository *repository.UserRepository,
 // ログの取得
 func (s *UserPortalService) GetAccessLogsByUserID(userID int, lastID primitive.ObjectID) ([]model.AccessLog, error) {
 	return s.accessLogRepository.GetAccessLogsByUserID(userID, lastID, 50)
+}
+
+func (s *UserPortalService) GetAccessLogsByAnyFilter(lastID primitive.ObjectID, options ...model.AccessLogFilter) ([]model.AccessLog, error) {
+	opt := model.AccessLogFilter{}
+
+	if len(options) > 0 {
+		opt = options[0]
+		// Limitの上限を50に
+		if opt.Limit > 50 || opt.Limit <= 0 {
+			opt.Limit = 50
+		}
+
+		// UserIDが正しいか
+		if opt.UserID < 0 {
+			return nil, errors.New("UserIDが正しくありません")
+		}
+
+		// DayBeforeとDayAfterの整合性
+		if !opt.DayBefore.IsZero() && !opt.DayAfter.IsZero() && opt.DayBefore.After(opt.DayAfter) {
+			return nil, errors.New("DayBefore cannot be after DayAfter")
+		}
+	}
+
+	return s.accessLogRepository.GetAccessLogsByAnyFilter(lastID, opt)
 }
 
 func (s *UserPortalService) GetRemainingEntriesLogsByUserID(userID int, lastID primitive.ObjectID) ([]model.RemainingEntriesLog, error) {
