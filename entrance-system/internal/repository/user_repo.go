@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"math"
+	"strconv"
+	"strings"
 	"time"
 
 	"jojihouse-entrance-system/internal/model"
@@ -18,6 +20,7 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 }
 
 func (r *UserRepository) GetUserByID(id int) (*model.User, error) {
+	var totalStayTime_Interval sql.NullString
 	user := &model.User{}
 	err := r.db.QueryRow("SELECT * FROM users WHERE id = $1", id).Scan(
 		&user.ID,
@@ -28,14 +31,20 @@ func (r *UserRepository) GetUserByID(id int) (*model.User, error) {
 		&user.Remaining_entries,
 		&user.Registered_at,
 		&user.Total_entries,
+		&totalStayTime_Interval, //SQLのIntervalで取得
 	)
 	if err != nil {
 		return nil, err
 	}
+
+	// Goのtime.Duretionに変換
+	user.Total_stay_time = intervalToDuration(totalStayTime_Interval)
+
 	return user, nil
 }
 
 func (r *UserRepository) GetUserByBarcode(barcode string) (*model.User, error) {
+	var totalStayTime_Interval sql.NullString
 	user := &model.User{}
 	err := r.db.QueryRow("SELECT * FROM users WHERE barcode = $1", barcode).Scan(
 		&user.ID,
@@ -46,10 +55,15 @@ func (r *UserRepository) GetUserByBarcode(barcode string) (*model.User, error) {
 		&user.Remaining_entries,
 		&user.Registered_at,
 		&user.Total_entries,
+		&totalStayTime_Interval, //SQLのIntervalで取得
 	)
 	if err != nil {
 		return nil, err
 	}
+
+	// Goのtime.Duretionに変換
+	user.Total_stay_time = intervalToDuration(totalStayTime_Interval)
+
 	return user, nil
 }
 
@@ -144,11 +158,8 @@ func (r *UserRepository) IncreaseTotalEntries(id int) error {
 
 // 滞在時間を増やす
 func (r *UserRepository) IncreaseTotalStayTime(userID int, stayTime time.Duration) error {
-	// 滞在時間(分)の計算して切り上げ
-	stayMinutes := int(math.Ceil(stayTime.Minutes()))
-
 	// SQLのINTERVALに変換
-	interval := fmt.Sprintf("%d minutes", stayMinutes)
+	interval := durationToInterval(stayTime)
 
 	_, err := r.db.Exec("UPDATE users SET total_stay_time = total_stay_time + $1 WHERE id = $2", interval, userID)
 
@@ -157,4 +168,25 @@ func (r *UserRepository) IncreaseTotalStayTime(userID int, stayTime time.Duratio
 	}
 
 	return nil
+}
+
+// PostgreSQL INTERVAL → Go time.Duration 変換（分単位）
+func intervalToDuration(interval sql.NullString) time.Duration {
+	if !interval.Valid {
+		return 0
+	}
+	parsedMinutes, err := strconv.Atoi(strings.Split(interval.String, " ")[0]) // "X minutes" の "X" を取得
+	if err != nil {
+		return 0
+	}
+	return time.Duration(parsedMinutes) * time.Minute
+}
+
+// Go time.Duration → PostgreSQL INTERVAL 変換（分単位）
+func durationToInterval(d time.Duration) string {
+	// 分を計算して切り上げ
+	minutes := int(math.Ceil(d.Minutes()))
+
+	// SQLのINTERVALに変換
+	return fmt.Sprintf("%d minutes", minutes)
 }
