@@ -8,5 +8,5 @@ type LogFilter struct {
 	DayBefore  time.Time // 指定日以前のログを取得
 	DayAfter   time.Time // 指定日以降のログを取得
 	AccessType string    // "entry" または "exit"
-	Limit      int       // 取得件数の制限
+	Limit      int64     // 取得件数の制限
 }
