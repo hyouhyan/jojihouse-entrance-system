@@ -1,5 +1,5 @@
 # ベースイメージとして公式のGolangイメージを使用
-FROM golang:1.24-alpine
+FROM golang:1.23-alpine
 
 # 作業ディレクトリを設定
 WORKDIR /go/src
@@ -15,8 +15,14 @@ RUN go mod download
 # ソースコードをコンテナにコピー
 COPY . .
 
+# Swaggerの生成
+# Swaggerのインストール
+RUN go install github.com/swaggo/swag/cmd/swag@v1.8.7
 # ポート8080を公開
 EXPOSE 8080
 
+# ホットリロード系
+RUN go install github.com/air-verse/air@latest
+
 # 実行可能ファイルをデフォルトのコマンドとして設定
-CMD ["go", "run", "cmd/main.go"]
+CMD ["air"]
