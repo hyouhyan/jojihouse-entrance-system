@@ -1,3 +1,5 @@
 swagger/*
 !swagger/.gitkeep
 !swagger/docs.go
+
+tmp/
