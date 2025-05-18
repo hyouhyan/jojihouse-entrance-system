@@ -17,7 +17,7 @@ COPY . .
 
 # Swaggerの生成
 # Swaggerのインストール
-RUN go install github.com/swaggo/swag/cmd/swag@v1.8.7
+# RUN go install github.com/swaggo/swag/cmd/swag@v1.8.7
 # ポート8080を公開
 EXPOSE 8080
 
