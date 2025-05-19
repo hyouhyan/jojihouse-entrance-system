@@ -43,5 +43,5 @@ CREATE TABLE current_users (
 -- 認証系の情報
 CREATE TABLE auth (
     user_id INT PRIMARY KEY UNIQUE REFERENCES users(id),
-    password VARCHAR(255),
+    password VARCHAR(255)
 );
