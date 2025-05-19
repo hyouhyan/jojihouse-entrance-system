@@ -43,7 +43,9 @@ services:
       - myNetwork
   
   jojihouse-system:
-    build: ./entrance-system
+    build: 
+      context: ./entrance-system
+      dockerfile: Dockerfile.air
     container_name: jojihouse-system
     ports:
       - "8080:8080"
