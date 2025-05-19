@@ -1,13 +1,13 @@
 package repository
 
-import (
-	"go.mongodb.org/mongo-driver/mongo"
-)
+import "github.com/jmoiron/sqlx"
 
 type AuthRepository struct {
-	db *mongo.Database
+	db *sqlx.DB
 }
 
-func NewAuthRepository(db *mongo.Database) *AuthRepository {
+func NewAuthRepository(db *sqlx.DB) *AuthRepository {
 	return &AuthRepository{db: db}
 }
+
+func SetUserPassword()
