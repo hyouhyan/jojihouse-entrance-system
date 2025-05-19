@@ -39,3 +39,9 @@ CREATE TABLE current_users (
     user_id INT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     entered_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- 認証系の情報
+CREATE TABLE auth (
+    user_id INT PRIMARY KEY UNIQUE REFERENCES users(id),
+    password VARCHAR(255),
+);
