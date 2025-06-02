@@ -1,6 +1,9 @@
 # ベースイメージとして公式のGolangイメージを使用
 FROM golang:1.24-alpine
 
+# タイムゾーンを設定
+ENV TZ=Asia/Tokyo
+
 # 作業ディレクトリを設定
 WORKDIR /go/src
 

@@ -198,3 +198,51 @@ func (s *AdminManagementService) GetAllPaymentLogs(lastID string, limit int64) (
 
 	return responseLogs, nil
 }
+
+func (s *AdminManagementService) GetMonthlyPaymentLogs(year int, month int) (response.MonthlyPaymentLog, error) {
+	logs, err := s.paymentLogRepository.GetMonthlyPaymentLogs(year, month)
+	if err != nil {
+		return response.MonthlyPaymentLog{}, err
+	}
+
+	// UserIDの一覧を作成
+	userIDs := make([]int, len(logs))
+	for i, log := range logs {
+		userIDs[i] = log.UserID
+	}
+
+	// PostgreSQL から UserID に対応する UserName を取得
+	users, err := s.userRepository.GetUsersByIDs(userIDs)
+	if err != nil {
+		return response.MonthlyPaymentLog{}, err
+	}
+
+	// UserID -> UserName のマッピング
+	userMap := make(map[int]string)
+	for _, user := range users {
+		userMap[*user.ID] = *user.Name
+	}
+
+	// レスポンスデータの作成
+	var responseLogs []response.PaymentLog
+	totalAmount := 0
+	for _, log := range logs {
+		responseLogs = append(responseLogs, response.PaymentLog{
+			ID:          log.ID.Hex(),
+			UserID:      log.UserID,
+			UserName:    userMap[log.UserID], // UserIDからUserNameを取得
+			Time:        log.Time,
+			Description: log.Description,
+			Amount:      log.Amount,
+			Payway:      log.Payway,
+		})
+		totalAmount += log.Amount
+	}
+
+	return response.MonthlyPaymentLog{
+		Year:  year,
+		Month: month,
+		Total: totalAmount,
+		Logs:  responseLogs,
+	}, nil
+}

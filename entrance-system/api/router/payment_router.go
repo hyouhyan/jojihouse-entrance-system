@@ -10,5 +10,6 @@ func SetupPaymentRoutes(router *gin.Engine, handler *handler.PaymentHandler) {
 	group := router.Group("/payment")
 	{
 		group.GET("", handler.GetAllPaymentLogs)
+		group.GET("/monthly", handler.GetMonthlyPaymentLogs)
 	}
 }

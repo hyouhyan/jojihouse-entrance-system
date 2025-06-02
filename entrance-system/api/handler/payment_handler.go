@@ -43,3 +43,33 @@ func (h *PaymentHandler) GetAllPaymentLogs(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"payment_logs": paymentLogs})
 }
+
+func (h *PaymentHandler) GetMonthlyPaymentLogs(c *gin.Context) {
+	year := c.Query("year")
+	month := c.Query("month")
+
+	if year == "" || month == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Year and month are required"})
+		return
+	}
+
+	yearInt, err := strconv.Atoi(year)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid year format"})
+		return
+	}
+	monthInt, err := strconv.Atoi(month)
+	if err != nil || monthInt < 1 || monthInt > 12 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid month format"})
+		return
+	}
+
+	paymentLogs, err := h.adminManagementService.GetMonthlyPaymentLogs(yearInt, monthInt)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get monthly payment logs"})
+		log.Print(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"monthlyPaymentLogs": paymentLogs})
+}
