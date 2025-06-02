@@ -70,6 +70,32 @@ services:
     networks:
       - myNetwork
 
+  wireguard:
+    image: linuxserver/wireguard
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Tokyo
+      - SERVERURL=your.domain.com # または外部からのグローバルIP
+      - SERVERPORT=51820
+      - PEERS=admin # VPNクライアント名（複数可: admin,developer など）
+      - PEERDNS=auto
+      - INTERNAL_SUBNET=10.13.13.0 # VPN内部サブネット
+    volumes:
+      - ./config/wireguard:/config
+      - /lib/modules:/lib/modules
+    ports:
+      - "51820:51820/udp" # WireGuardポートのみ外部公開
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    restart: always
+    networks:
+      - myNetwork
+
 networks:
   myNetwork:
     driver: bridge
