@@ -15,6 +15,7 @@ type User struct {
 	Total_entries     *int       `json:"total_entries"`
 	Allergy           *string    `json:"allergy"`
 	Number            *int       `json:"number"`
+	Roles             []Role     `json:"roles"`
 }
 
 type Role struct {
